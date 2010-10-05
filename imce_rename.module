@@ -1,0 +1,110 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function imce_rename_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+
+    case 'imce_fileop_form':
+      $imce =& $form['#parameters'][2]['imce'];
+      if (imce_perm_exists($imce, 'rename')) {
+        $form['fset_rename'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Rename'),
+        ) + imce_rename_form($imce);
+        drupal_add_js(drupal_get_path('module', 'imce_rename') .'/imce_rename.js');
+      }
+      break;
+
+    case 'imce_profile_form':
+      foreach (element_children($form['profile']['directories']) as $key) {
+        $form['profile']['directories'][$key]['rename'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Rename'),
+          '#default_value' => isset($form_state['profile']['directories'][$key]['rename']) ? $form_state['profile']['directories'][$key]['rename'] : 0,
+        );
+      }
+      break;
+  }
+}
+
+/**
+ * Rename form.
+ */
+function imce_rename_form(&$imce) {
+  $form['new_file_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New File name'),
+    '#size' => 40,
+    '#prefix' => '<div class="container-inline">',
+  );
+  
+  $form['rename'] = array(
+    '#type' => 'submit',
+    '#value' => t('Rename'),
+    '#submit' => $imce['perm']['rename'] ? array('imce_rename_submit') : NULL,//permission for submission
+    '#suffix' => '</div>',
+  );
+  return $form;
+}
+
+/**
+ * Submit rename form.
+ */
+function imce_rename_submit($form, &$form_state) {
+  $form_state['redirect'] = FALSE;
+  $imce =& $form['#parameters'][2]['imce'];
+  imce_process_files($form_state['values']['filenames'], $imce, 'imce_rename_file', array($form_state['values']['new_file_name']));
+}
+
+/**
+ * Rename a file
+ */
+function imce_rename_file($old_filename, &$imce, $new_filename) {
+  $dirpath = file_directory_path() . ($imce['dir'] == '.' ? '' : '/'. $imce['dir']);
+
+  $extension = substr($old_filename, -4);
+  if (strtolower(substr($new_filename, -4)) != strtolower($extension)) {
+    $new_filename .= $extension;
+  }
+
+  $old_filepath = $dirpath .'/'. $old_filename;
+  $new_filepath = $dirpath .'/'. $new_filename;
+  
+  $move = file_move($old_filepath, $new_filepath, FILE_EXISTS_ERROR);
+
+  if ($move) {
+    $file = db_fetch_object(db_query("SELECT f.* FROM {files} f WHERE f.filepath = '%s'", $old_filepath));
+    
+    $file->filepath = $new_filepath;
+    $file->filename = basename($file->filepath);
+
+    $update = array();
+    $update[] = 'fid';
+
+    //save the file
+    drupal_write_record('files', $file, $update);
+
+    //add to the list
+    imce_add_file($file, $imce);
+    imce_remove_file($old_filename, $imce);
+    drupal_set_message(t('Rename successful! Renamed "@old_file" to "@new_file"', array('@old_file' => utf8_encode($old_filename), '@new_file' => utf8_encode($new_filename))));
+  }
+  else {
+    drupal_set_message(t('Failed to rename file "@old_file" to "@new_file" because "@new_file" already exists', array('@old_file' => utf8_encode($old_filename), '@new_file' => utf8_encode($new_filename))));
+  }
+
+  return $file;
+}
+
+/**
+ * Ajax operation: rename
+ */
+function imce_js_rename(&$imce) {
+  if ($imce['perm']['rename']) {
+    $_POST['op'] = t('Rename');
+    return imce_process_fileop($imce);
+  }
+}

@@ -1,0 +1,5 @@
+; $Id$
+name = "IMCE Rename"
+description = "Adds image renaming functionality to IMCE"
+core = "6.x"
+dependencies[] = imce
