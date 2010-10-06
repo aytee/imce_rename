@@ -72,15 +72,19 @@ function imce_rename_file($old_filename, &$imce, $new_filename) {
 
   $old_filepath = $dirpath .'/'. $old_filename;
   $new_filepath = $dirpath .'/'. $new_filename;
-  
+
   $move = file_move($old_filepath, $new_filepath, FILE_EXISTS_ERROR);
 
   if ($move) {
-    $file = db_fetch_object(db_query("SELECT f.* FROM {files} f WHERE f.filepath = '%s'", $old_filepath));
+    $old_filepath = $dirpath .'/'. $old_filename; //this got modified by the file_move command.
     
+    $file = db_fetch_object(db_query("SELECT f.* FROM {files} f WHERE f.filepath = '%s'", $old_filepath));
     $file->filepath = $new_filepath;
     $file->filename = basename($file->filepath);
-
+    $img = imce_image_info($file->filepath);  
+    $file->width = $img['width'];
+    $file->height = $img['height'];
+  
     $update = array();
     $update[] = 'fid';
 
@@ -88,8 +92,8 @@ function imce_rename_file($old_filename, &$imce, $new_filename) {
     drupal_write_record('files', $file, $update);
 
     //add to the list
-    imce_add_file($file, $imce);
     imce_remove_file($old_filename, $imce);
+    imce_add_file($file, $imce);
     drupal_set_message(t('Rename successful! Renamed "@old_file" to "@new_file"', array('@old_file' => utf8_encode($old_filename), '@new_file' => utf8_encode($new_filename))));
   }
   else {
