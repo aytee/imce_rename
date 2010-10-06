@@ -36,7 +36,7 @@ function imce_rename_form_alter(&$form, &$form_state, $form_id) {
 function imce_rename_form(&$imce) {
   $form['new_file_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('New File name'),
+    '#title' => t('New file name'),
     '#size' => 40,
     '#prefix' => '<div class="container-inline">',
   );
