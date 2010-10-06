@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Install file for imce_rename
+ */
+
+/**
  * Implementation of hook_install()
  */
 function imce_rename_install() {
