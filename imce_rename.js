@@ -6,6 +6,29 @@ imce.renameOpSubmit = function(dop) {
   }
 };
 
+//add hook.load
+imce.hooks.load.push(function() {
+  //set click function for rename tab to toggle crop UI
+  imce.ops['rename'].func = imce.renamePrepare;
+});
+
+//populate the text box with the current file name
+imce.renamePrepare = function(response) {
+  var i = 0;
+  for (var fid in imce.selected) {
+    $('#edit-new-file-name').val(imce.selected[fid].id);
+    i++;
+  }
+  if (i == 0) {
+    imce.setMessage(Drupal.t('A file must be selected before it can be renamed.'), 'error');
+    setTimeout(function() {$('#op-close-link').click();}, 5);
+  }
+  if (i > 1) {
+    imce.setMessage(Drupal.t('Only one file can be renamed at a time.'), 'error');
+    setTimeout(function() {$('#op-close-link').click();}, 5);
+  }
+};
+
 //custom response. keep track of overwritten files.
 imce.renameResponse = function(response) {
   imce.processResponse(response);
