@@ -31,10 +31,16 @@ imce.renamePrepare = function(response) {
 //custom response. keep track of overwritten files.
 imce.renameResponse = function(response) {
   imce.processResponse(response);
+  imce.vars.cache = false;
+  imce.navigate('.'); //should be folder parent and only trigger when a dir is renamed.
   $('#op-close-link').click(); //there is probably a better way to close the dialog than this.
 };
 
 //implementation of imce.hookOpValidate
 imce.renameOpValidate = function() {
+  if (imce.selcount == 0) {
+    imce.selcount = 1;
+    imce.selected['__IS_DIR__'] = '__IS_DIR__';
+  }
   return true;
 };
