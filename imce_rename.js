@@ -16,11 +16,11 @@ imce.hooks.load.push(function() {
 imce.renamePrepare = function(response) {
   var i = 0;
   for (var fid in imce.selected) {
-    $('#edit-new-name').val(imce.selected[fid].id);
+    $('#edit-new-name').val(unescape(imce.selected[fid].id));
     i++;
   }
   if (i == 0) {
-    $('#edit-new-name').val(imce.conf.dir);
+    $('#edit-new-name').val(unescape(imce.conf.dir));
   }
   if (i > 1) {
     imce.setMessage(Drupal.t('Only one file can be renamed at a time.'), 'error');
