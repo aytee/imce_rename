@@ -1,5 +1,9 @@
 ; $Id$
 name = "IMCE Rename"
-description = "Adds image renaming functionality to IMCE"
-core = "6.x"
-dependencies[] = imce
+description = "Adds file and directory renaming functionality to IMCE"
+core = "7.x"
+package = "Media"
+dependencies[] = "imce"
+
+files[] = "imce_rename.install"
+files[] = "imce_rename.module"
