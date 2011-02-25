@@ -1,4 +1,3 @@
-; $Id$
 name = "IMCE Rename"
 description = "Adds file and directory renaming functionality to IMCE"
 core = "7.x"
