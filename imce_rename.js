@@ -39,5 +39,5 @@ imce.renameResponse = function(response) {
   imce.processResponse(response);
   imce.vars.cache = false;
   imce.navigate('.'); //should be folder parent and only trigger when a dir is renamed.
-  jQuery('#op-close-link').click(); //there is probably a better way to close the dialog than this.
+  imce.opShrink('rename', 'fadeOut');
 };
