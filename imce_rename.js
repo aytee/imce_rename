@@ -12,25 +12,32 @@ imce.hooks.load.push(function() {
   imce.ops['rename'].func = imce.renamePrepare;
 });
 
-//populate the text box with the current file or dir name
-imce.renamePrepare = function(response) {
-  var i = 0;
-  for (var fid in imce.selected) {
-    jQuery('#edit-new-name').val(unescape(imce.selected[fid].id));
-    i++;
-  }
-  if (i == 0) {
-    jQuery('#edit-new-name').val(unescape(imce.conf.dir));
-  }
-  if (i > 1) {
-    imce.setMessage(Drupal.t('Only one file can be renamed at a time.'), 'error');
-    setTimeout(function() {jQuery('#op-close-link').click();}, 5);
-  }
-  
-  //hack to make renaming of directories possible
-  if (imce.selcount == 0) {
-    imce.selcount = 1;
-    imce.selected['__IS_DIR__'] = '__IS_DIR__';
+// Populate the textbox with the selected file or directory name.
+imce.renamePrepare = function(show) {
+  if (show) {
+    if (imce.selcount == 0) {
+      // Hack to make renaming of directories possible
+      imce.selcount = 1;
+      imce.selected['__IS_DIR__'] = '__IS_DIR__';
+    }
+
+    var numSelectedFiles = 0;
+    for (var fid in imce.selected) {
+      if (fid == '__IS_DIR__') {
+        continue;
+      }
+      numSelectedFiles++;
+    }
+    if (numSelectedFiles == 1) {
+      jQuery('#edit-new-name').val(imce.decode(imce.selected[fid].id));
+    }
+    else if (numSelectedFiles == 0) {
+      jQuery('#edit-new-name').val(imce.decode(imce.conf.dir));
+    }
+    else {
+      imce.setMessage(Drupal.t('Only one file can be renamed at a time.'), 'error');
+      imce.opShrink('rename', 'hide');
+    }
   }
 };
 
