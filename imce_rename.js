@@ -44,7 +44,17 @@ imce.renamePrepare = function(show) {
 //custom response. keep track of overwritten files.
 imce.renameResponse = function(response) {
   imce.processResponse(response);
-  imce.vars.cache = false;
-  imce.navigate('.'); //should be folder parent and only trigger when a dir is renamed.
+  if (imce.selected['__IS_DIR__'] == '__IS_DIR__') {
+    // When renaming a directory, update the tree appropriately.
+    var currentDir = jQuery('#edit-new-name').val();
+    var parentDir = currentDir.slice(0, currentDir.lastIndexOf('/'));
+    jQuery(imce.tree[imce.conf.dir].li).remove();
+    imce.dirAdd(currentDir, imce.tree[parentDir], true);
+  }
+  else {
+    var currentDir = imce.conf.dir;
+  }
+  // Refresh the current directory.
+  jQuery.ajax(imce.navSet(currentDir, false));
   imce.opShrink('rename', 'fadeOut');
 };
