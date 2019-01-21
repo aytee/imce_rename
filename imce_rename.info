@@ -1,8 +1,8 @@
+type = module
 name = "IMCE Rename"
 description = "Adds file and directory renaming functionality to IMCE"
-core = "7.x"
+backdrop = "1.x"
 package = "Media"
 dependencies[] = "imce"
 
-files[] = "imce_rename.install"
-files[] = "imce_rename.module"
+

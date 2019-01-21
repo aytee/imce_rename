@@ -11,8 +11,8 @@ function imce_rename_form_imce_fileop_form_alter(&$form, &$form_state, $form_id)
       '#title' => t('Rename'),
     ) + imce_rename_form($imce);
     array_unshift($form['#validate'], 'imce_rename_prevalidate'); // Needed to override some validation when renaming folders
-    drupal_add_js(drupal_get_path('module', 'imce_rename') .'/imce_rename.js');
-    drupal_add_css(drupal_get_path('module', 'imce_rename') .'/imce_rename.css');
+    backdrop_add_js(backdrop_get_path('module', 'imce_rename') .'/imce_rename.js');
+    backdrop_add_css(backdrop_get_path('module', 'imce_rename') .'/imce_rename.css');
   }
 }
 
@@ -84,7 +84,7 @@ function imce_rename_callback($old_name, &$imce, $new_name) {
       imce_rename_dir($imce, $old_uri, $new_uri);
     }
     else {
-      drupal_set_message(t('You do not have permission to rename folders'), 'error');
+      backdrop_set_message(t('You do not have permission to rename folders'), 'error');
     }
   }
   else {
@@ -100,7 +100,7 @@ function imce_rename_callback($old_name, &$imce, $new_name) {
       imce_rename_file($imce, $old_uri, $new_uri);
     }
     else {
-      drupal_set_message(t('You do not have permission to rename files'), 'error');
+      backdrop_set_message(t('You do not have permission to rename files'), 'error');
     }
   }
 }
@@ -121,11 +121,11 @@ function imce_rename_file(&$imce, $old_uri, $new_uri) {
   $file->height = $img['height'];
   
   if ($move) {
-    drupal_set_message(t('Rename successful! Renamed "@old_file" to "@new_file"', array('@old_file' => utf8_encode(basename($old_uri)), '@new_file' => utf8_encode(basename($new_uri)))));
+    backdrop_set_message(t('Rename successful! Renamed "@old_file" to "@new_file"', array('@old_file' => utf8_encode(basename($old_uri)), '@new_file' => utf8_encode(basename($new_uri)))));
     return $file;
   }
   else {
-    drupal_set_message(t('Failed to rename file "@old_file" to "@new_file" because "@new_file" already exists', array('@old_file' => utf8_encode(basename($old_uri)), '@new_file' => utf8_encode(basename($new_uri)))));
+    backdrop_set_message(t('Failed to rename file "@old_file" to "@new_file" because "@new_file" already exists', array('@old_file' => utf8_encode(basename($old_uri)), '@new_file' => utf8_encode(basename($new_uri)))));
   }
 }
 
@@ -133,18 +133,18 @@ function imce_rename_file(&$imce, $old_uri, $new_uri) {
  * Rename a directory
  */
 function imce_rename_dir(&$imce, $old_uri, $new_uri) {
-  $rename = @rename(drupal_realpath($old_uri), drupal_realpath($new_uri));
+  $rename = @rename(backdrop_realpath($old_uri), backdrop_realpath($new_uri));
   if ($rename) {
     $result = db_query("SELECT f.* FROM {file_managed} f WHERE f.uri LIKE :old", array(':old' => $old_uri .'%'));
     foreach ($result as $file) {
       $file->uri = str_replace($old_uri, $new_uri, $file->uri);
-      drupal_write_record('file_managed', $file, array('fid'));
+      backdrop_write_record('file_managed', $file, array('fid'));
     }
     
-    drupal_set_message(t('Rename successful! Renamed "@old_dir" to "@new_dir"', array('@old_dir' => utf8_encode($old_uri), '@new_dir' => utf8_encode($new_uri))));
+    backdrop_set_message(t('Rename successful! Renamed "@old_dir" to "@new_dir"', array('@old_dir' => utf8_encode($old_uri), '@new_dir' => utf8_encode($new_uri))));
   }
   else {
-    drupal_set_message(t('Failed to rename directory "@old_dir" to "@new_dir"', array('@old_dir' => utf8_encode($old_uri), '@new_dir' => utf8_encode($new_uri))));
+    backdrop_set_message(t('Failed to rename directory "@old_dir" to "@new_dir"', array('@old_dir' => utf8_encode($old_uri), '@new_dir' => utf8_encode($new_uri))));
   }
 
   return $file; 

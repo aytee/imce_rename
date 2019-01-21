@@ -35,7 +35,7 @@ imce.renamePrepare = function(show) {
       jQuery('#edit-new-name').val(imce.decode(imce.conf.dir));
     }
     else {
-      imce.setMessage(Drupal.t('Only one file can be renamed at a time.'), 'error');
+      imce.setMessage(Backdrop.t('Only one file can be renamed at a time.'), 'error');
       imce.opShrink('rename', 'hide');
     }
   }
